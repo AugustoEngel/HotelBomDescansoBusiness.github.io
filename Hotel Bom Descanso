@@ -1,0 +1,531 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cardápio Online - Hotel Bom Descanso Business</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Estilos personalizados para o Toastify (notificações) */
+        .toast {
+            position: fixed;
+            bottom: 20px;
+            /* Esta linha define a posição horizontal do toast */
+            right: 20px;
+            background-color: #4caf50;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 5px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            font-size: 1rem;
+            z-index: 1000;
+            opacity: 1;
+            transition: opacity 0.5s ease-in-out, transform 0.5s ease-in-out;
+        }
+
+        .toast-warning {
+            background-color: #f39c12;
+        }
+
+        .toast-info {
+            background-color: #3498db;
+        }
+
+        .toast-success {
+            background-color: #2ecc71;
+        }
+
+        .toast.fade-out {
+            opacity: 0;
+            transform: translateY(20px);
+        }
+
+        /* Estilos para o modal de personalização */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0,0,0,0.5);
+        }
+
+        .modal-content {
+            background-color: white;
+            margin: 10% auto;
+            padding: 20px;
+            border-radius: 10px;
+            width: 90%;
+            max-width: 500px;
+            position: relative;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+            animation-name: fadeIn;
+            animation-duration: 0.5s;
+        }
+
+        @keyframes fadeIn {
+            from {opacity: 0; transform: translateY(-50px);}
+            to {opacity: 1; transform: translateY(0);}
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            border-bottom: 1px solid #ddd;
+            padding-bottom: 10px;
+        }
+
+        .modal-header h2 {
+            margin: 0;
+            font-size: 1.5rem;
+            color: #333;
+        }
+
+        .close-button {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            color: #aaa;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .close-button:hover,
+        .close-button:focus {
+            color: #000;
+            text-decoration: none;
+        }
+
+        .modal-body {
+            margin-bottom: 15px;
+        }
+
+        .modal-body label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 600;
+            color: #555;
+        }
+
+        .modal-body input[type="number"] {
+            width: 100%;
+            padding: 8px 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            margin-bottom: 10px;
+            font-size: 1rem;
+        }
+
+        .modal-body select {
+            width: 100%;
+            padding: 8px 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            margin-bottom: 10px;
+            font-size: 1rem;
+        }
+
+        .modal-body textarea {
+            width: 100%;
+            padding: 8px 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            margin-bottom: 10px;
+            font-size: 1rem;
+            resize: vertical;
+        }
+
+        .modal-footer {
+            text-align: right;
+        }
+
+        .modal-footer button {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: background-color 0.3s ease;
+        }
+
+        .modal-footer button.confirmar {
+            background-color: #2ecc71;
+            color: white;
+        }
+        .modal-footer button.confirmar:hover {
+             background-color: #218838;
+        }
+
+        .modal-footer button.cancelar {
+            background-color: #f1f1f1;
+            color: #333;
+            margin-right: 10px;
+        }
+
+        .modal-footer button.cancelar:hover {
+            background-color: #ddd;
+        }
+
+    </style>
+</head>
+<body class="bg-gray-100 font-sans">
+    <header class="bg-blue-500 text-white py-4 text-center" style="background-color: #8B4513;">
+        <h1 class="text-2xl font-semibold">Cardápio Online - Hotel Bom Descanso Business</h1>
+    </header>
+
+    <main class="container mx-auto mt-8 p-4">
+        <section id="lanches" class="mb-8">
+            <h2 class="text-xl font-semibold mb-4 text-gray-800">Lanches</h2>
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            </div>
+        </section>
+
+        <section id="pratos" class="mb-8">
+            <h2 class="text-xl font-semibold mb-4 text-gray-800">Pratos</h2>
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            </div>
+        </section>
+
+        <section id="bebidas" class="mb-8">
+            <h2 class="text-xl font-semibold mb-4 text-gray-800">Bebidas</h2>
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            </div>
+        </section>
+
+        <section id="carrinho" class="bg-white rounded-lg shadow-md p-6 mb-8">
+            <h2 class="text-xl font-semibold mb-4 text-gray-800">Seu Pedido</h2>
+            <ul id="lista-carrinho" class="mb-4">
+                </ul>
+            <div id="total-carrinho" class="font-semibold text-gray-800 text-lg">Total: R$ 0,00</div>
+            <button id="finalizar-pedido" class="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded mt-4 w-full">Finalizar Pedido</button>
+             <div id="mensagem-pedido" class="mt-4 text-center text-gray-600"></div>
+        </section>
+
+         <div id="modal-personalizacao" class="modal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2>Personalizar Item</h2>
+                    <span class="close-button">&times;</span>
+                </div>
+                <div class="modal-body">
+                    <label for="quantidade">Quantidade:</label>
+                    <input type="number" id="quantidade" value="1" min="1">
+
+                    <div id="agua-options" style="display: none;">
+                        <label>Água:</label>
+                        <div class="flex items-center mb-4">
+                            <input type="radio" id="agua-com-gas" name="agua" value="com-gas" class="mr-2">
+                            <label for="agua-com-gas" class="mr-4">Com Gás</label>
+                            <input type="radio" id="agua-sem-gas" name="agua" value="sem-gas" class="mr-2">
+                            <label for="agua-sem-gas" class="flex items-center">
+                                Sem Gás
+                            </label>
+                        </div>
+                    </div>
+
+                    <div id="refri-options" style="display: none;">
+                        <label>Refrigerante:</label>
+                        <div class="flex flex-col  mb-4">
+                            <input type="radio" id="refri-coca-cola" name="refri" value="coca-cola" class="mr-2">
+                            <label for="refri-coca-cola" class="mr-4">Coca-Cola</label>
+                            <input type="radio" id="refri-guarana" name="refri" value="guarana" class="mr-2">
+                            <label for="refri-guarana" class="mr-4">Guaraná</label>
+                            <input type="radio" id="refri-sprite" name="refri" value="sprite" class="mr-2">
+                            <label for="refri-sprite" class="mr-4">Sprite</label>
+                        </div>
+                    </div>
+
+                    <div id="suco-options" style="display: none;">
+                        <label>Suco:</label>
+                        <div class="flex flex-col  mb-4">
+                            <input type="radio" id="suco-laranja" name="suco" value="laranja" class="mr-2">
+                            <label for="suco-laranja" class="mr-4">Laranja</label>
+                            <input type="radio" id="suco-manga" name="suco" value="manga" class="mr-2">
+                            <label for="suco-manga" class="mr-4">Manga</label>
+                        </div>
+                    </div>
+
+                    <label for="observacoes">Observações:</label>
+                    <textarea id="observacoes" rows="4" placeholder="Alguma observação para o preparo?"></textarea>
+                </div>
+                <div class="modal-footer">
+                    <button class="cancelar">Cancelar</button>
+                    <button class="confirmar">Adicionar ao Carrinho</button>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer class="bg-gray-200 text-gray-700 py-4 text-center">
+        <p>&copy; 2024 Hotel Bom Descanso Business. Todos os direitos reservados.</p>
+    </footer>
+
+    <script>
+        // Função para exibir notificações usando Toastify
+        function showToast(message, type = 'info') {
+            const toast = document.createElement('div');
+            toast.className = `toast toast-${type}`;
+            toast.textContent = message;
+            document.body.appendChild(toast);
+
+            setTimeout(() => {
+                toast.classList.add('fade-out');
+                setTimeout(() => toast.remove(), 500); // Remove após a animação
+            }, 2000); // Tempo de exibição do toast
+        }
+
+        // Dados do cardápio (poderiam vir de um banco de dados ou API)
+        const cardapio = [
+            { id: 1, nome: "Água Mineral", categoria: "Bebidas", preco: 2.50, descricao: "Garrafa 500ml" },
+            { id: 2, nome: "Refrigerante Lata", categoria: "Bebidas", preco: 5.00, descricao: "Lata 350ml" },
+            { id: 3, nome: "Suco Natural", categoria: "Bebidas", preco: 6.00, descricao: "Copo 300ml" },
+            { id: 4, nome: "Hambúrguer Simples", categoria: "Lanches", preco: 12.00, descricao: "Pão, carne, queijo" },
+            { id: 5, nome: "Hambúrguer Completo", categoria: "Lanches", preco: 15.00, descricao: "Pão, carne, queijo, alface, tomate, bacon" },
+            { id: 6, nome: "Sanduíche Natural", categoria: "Lanches", preco: 10.00, descricao: "Pão integral, frango, salada" },
+            { id: 7, nome: "Salada Caesar", categoria: "Pratos", preco: 18.00, descricao: "Alface, frango, croutons, molho Caesar" },
+            { id: 8, nome: "Espaguete à Bolonhesa", categoria: "Pratos", preco: 20.00, descricao: "Massa com molho de carne" },
+            { id: 9, nome: "Frango Grelhado", categoria: "Pratos", preco: 22.00, descricao: "Acompanha arroz e salada" },
+        ];
+
+        const secaoLanches = document.getElementById("lanches");
+        const secaoPratos = document.getElementById("pratos");
+        const secaoBebidas = document.getElementById("bebidas");
+        const listaCarrinho = document.getElementById("lista-carrinho");
+        const totalCarrinhoElement = document.getElementById("total-carrinho");
+        const finalizarPedidoButton = document.getElementById("finalizar-pedido");
+        const mensagemPedido = document.getElementById("mensagem-pedido");
+
+        let carrinho = [];
+        let total = 0;
+        let itemSelecionado = null; // Para controlar o item selecionado no modal
+
+        // Função para exibir o cardápio na página
+        function exibirCardapio() {
+            secaoLanches.querySelector('.grid').innerHTML = "";
+            secaoPratos.querySelector('.grid').innerHTML = "";
+            secaoBebidas.querySelector('.grid').innerHTML = "";
+
+            cardapio.forEach(item => {
+                const itemDiv = document.createElement("div");
+                itemDiv.className = "bg-white rounded-lg shadow-md p-4 flex flex-col justify-between";
+                itemDiv.innerHTML = `
+                    <h3 class="text-lg font-semibold mb-2 text-gray-800">${item.nome}</h3>
+                    <p class="text-gray-600 text-sm mb-2">${item.descricao}</p>
+                    <p class="text-gray-800 font-bold text-lg mb-2">R$ ${item.preco.toFixed(2)}</p>
+                    <button class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded text-sm adicionar-item" data-id="${item.id}">Adicionar ao Pedido</button>
+                `;
+
+                switch (item.categoria) {
+                    case "Lanches":
+                        secaoLanches.querySelector('.grid').appendChild(itemDiv);
+                        break;
+                    case "Pratos":
+                        secaoPratos.querySelector('.grid').appendChild(itemDiv);
+                        break;
+                    case "Bebidas":
+                        secaoBebidas.querySelector('.grid').appendChild(itemDiv);
+                        break;
+                }
+            });
+
+            // Adiciona o evento de clique aos botões "Adicionar ao Pedido"
+            const botoesAdicionar = document.querySelectorAll(".adicionar-item");
+            botoesAdicionar.forEach(botao => {
+                botao.addEventListener("click", () => {
+                    const itemId = parseInt(botao.dataset.id);
+                    itemSelecionado = cardapio.find(item => item.id === itemId);
+                    if (itemSelecionado) {
+                        abrirModalPersonalizacao();
+                    }
+                });
+            });
+        }
+
+
+        // Função para adicionar um item ao carrinho
+        function adicionarAoCarrinho(quantidade, observacoes, agua, refri, suco) { // Adicionado o parâmetro 'agua', 'refri' e 'suco'
+             if (!itemSelecionado) return;
+
+            const itemExistente = carrinho.find(item => item.id === itemSelecionado.id);
+
+            if (itemExistente) {
+                itemExistente.quantidade += quantidade;
+                itemExistente.observacoes = observacoes; // Atualiza observações
+                itemExistente.agua = agua; // Atualiza a escolha da água
+                itemExistente.refri = refri; // Atualiza a escolha do refrigerante
+                itemExistente.suco = suco; // Atualiza a escolha do suco
+            } else {
+                carrinho.push({
+                    id: itemSelecionado.id,
+                    nome: itemSelecionado.nome,
+                    preco: itemSelecionado.preco,
+                    quantidade: quantidade,
+                    observacoes: observacoes,
+                    agua: agua, // Inclui a escolha da água no item do carrinho
+                    refri: refri, // Inclui a escolha do refrigerante
+                    suco: suco, // Inclui a escolha do suco
+                });
+            }
+
+            atualizarCarrinho();
+            showToast(`${itemSelecionado.nome} adicionado ao pedido!`, 'success');
+            fecharModalPersonalizacao();
+        }
+
+        // Função para atualizar o carrinho na página
+        function atualizarCarrinho() {
+            listaCarrinho.innerHTML = ""; // Limpa o conteúdo anterior
+            total = 0;
+
+            carrinho.forEach(item => {
+                const itemLi = document.createElement("li");
+                itemLi.className = "flex justify-between items-center py-2 border-b border-gray-200";
+                itemLi.innerHTML = `
+                    <div>
+                        <span class="font-semibold text-gray-800">${item.nome} x${item.quantidade}</span>
+                        <p class="text-gray-600 text-sm">
+                            ${item.observacoes ? "Obs: " + item.observacoes : ""}
+                            ${item.agua ? "<br>Água: " + (item.agua === "com-gas" ? "Com Gás" : "Sem Gás") : ""}
+                            ${item.refri ? "<br>Refrigerante: " + item.refri : ""}
+                            ${item.suco ? "<br>Suco: " + item.suco : ""}
+                        </p>
+                    </div>
+                    <span class="text-gray-800">R$ ${(item.preco * item.quantidade).toFixed(2)}</span>
+                    <button class="remover-item text-red-500 hover:text-red-700 font-bold" data-id="${item.id}">Remover</button>
+                `;
+                listaCarrinho.appendChild(itemLi);
+                total += item.preco * item.quantidade;
+            });
+
+            totalCarrinhoElement.textContent = `Total: R$ ${total.toFixed(2)}`;
+
+            // Adiciona o evento de clique aos botões "Remover"
+            const botoesRemover = document.querySelectorAll(".remover-item");
+            botoesRemover.forEach(botao => {
+                botao.addEventListener("click", () => {
+                    const itemId = parseInt(botao.dataset.id);
+                    removerDoCarrinho(itemId);
+                });
+            });
+
+            // Desabilita o botão de finalizar pedido se o carrinho estiver vazio
+            finalizarPedidoButton.disabled = carrinho.length === 0;
+            finalizarPedidoButton.className = carrinho.length === 0
+                ? "bg-gray-400 text-white font-bold py-2 px-4 rounded mt-4 w-full cursor-not-allowed"
+                : "bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded mt-4 w-full";
+        }
+
+        // Função para remover um item do carrinho
+        function removerDoCarrinho(itemId) {
+            carrinho = carrinho.filter(item => item.id !== itemId);
+            atualizarCarrinho();
+            showToast('Item removido do carrinho!', 'warning');
+        }
+
+        // Função para finalizar o pedido
+        function finalizarPedido() {
+            if (carrinho.length === 0) {
+                showToast('Seu carrinho está vazio!', 'warning');
+                return;
+            }
+
+            // Simulação do envio do pedido (substituir por lógica real de envio)
+            mensagemPedido.textContent = "Pedido enviado para a cozinha/recepção. Obrigado!";
+            showToast('Pedido enviado com sucesso!', 'success');
+            carrinho = [];
+            total = 0;
+            atualizarCarrinho();
+
+            setTimeout(() => {
+                mensagemPedido.textContent = ""; // Limpa a mensagem após alguns segundos
+            }, 5000);
+        }
+
+        // MODAL DE PERSONALIZAÇÃO
+        const modal = document.getElementById("modal-personalizacao");
+        const confirmarButton = modal.querySelector(".confirmar");
+        const cancelarButton = modal.querySelector(".cancelar");
+        const closeModalButton = modal.querySelector(".close-button");
+        const quantidadeInput = document.getElementById("quantidade");
+        const observacoesInput = document.getElementById("observacoes");
+        const aguaOptions = document.getElementById("agua-options");
+        const refriOptions = document.getElementById("refri-options");
+        const sucoOptions = document.getElementById("suco-options");
+        const aguaComGasInput = document.getElementById("agua-com-gas");
+        const aguaSemGasInput = document.getElementById("agua-sem-gas");
+        const refriCocaColaInput = document.getElementById("refri-coca-cola");
+        const refriGuaranaInput = document.getElementById("refri-guarana");
+        const refriSpriteInput = document.getElementById("refri-sprite");
+        const sucoLaranjaInput = document.getElementById("suco-laranja");
+        const sucoMangaInput = document.getElementById("suco-manga");
+
+
+        function abrirModalPersonalizacao() {
+            modal.style.display = "block";
+             // Reseta os valores do modal
+            quantidadeInput.value = 1;
+            observacoesInput.value = "";
+            aguaOptions.style.display = "none";
+            refriOptions.style.display = "none";
+            sucoOptions.style.display = "none";
+            aguaComGasInput.checked = false;
+            aguaSemGasInput.checked = false;
+            refriCocaColaInput.checked = false;
+            refriGuaranaInput.checked = false;
+            refriSpriteInput.checked = false;
+            sucoLaranjaInput.checked = false;
+            sucoMangaInput.checked = false;
+
+            if (itemSelecionado.nome === "Água Mineral") {
+                aguaOptions.style.display = "block";
+            } else if (itemSelecionado.nome === "Refrigerante Lata") {
+                refriOptions.style.display = "block";
+            } else if (itemSelecionado.nome === "Suco Natural") {
+                sucoOptions.style.display = "block";
+            }
+        }
+
+        function fecharModalPersonalizacao() {
+            modal.style.display = "none";
+        }
+
+        confirmarButton.addEventListener("click", () => {
+            const quantidade = parseInt(quantidadeInput.value);
+            const observacoes = observacoesInput.value;
+            const agua = aguaComGasInput.checked ? "com-gas" : aguaSemGasInput.checked ? "sem-gas" : null; // Obtém a escolha da água
+            const refri = refriCocaColaInput.checked ? "Coca-Cola" :
+                          refriGuaranaInput.checked ? "Guaraná" :
+                          refriSpriteInput.checked ? "Sprite" : null;
+            const suco = sucoLaranjaInput.checked ? "Laranja" :
+                         sucoMangaInput.checked ? "Manga" : null;
+
+            if (quantidade > 0) {
+                adicionarAoCarrinho(quantidade, observacoes, agua, refri, suco); // Passa a escolha da água, refri e suco
+            } else {
+                showToast('Por favor, insira uma quantidade válida.', 'warning');
+            }
+        });
+
+        cancelarButton.addEventListener("click", fecharModalPersonalizacao);
+        closeModalButton.addEventListener("click", fecharModalPersonalizacao);
+
+        window.addEventListener("click", (event) => {
+            if (event.target === modal) {
+                fecharModalPersonalizacao();
+            }
+        });
+
+        // Inicialização: Exibir o cardápio e adicionar eventos
+        exibirCardapio();
+        atualizarCarrinho(); // Exibe o carrinho inicialmente (vazio)
+        finalizarPedidoButton.addEventListener("click", finalizarPedido);
+    </script>
+</body>
+</html>
